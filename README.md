@@ -39,10 +39,15 @@ where,
 * '-2 /path/to/read2.fastq.gz' The read 2 FASTQ file, optionally gzip(.gz) or bzip2(.bz2) compressed.
 * '-S /path/to/output.sam' The output SAM format text file of alignments.
 
+The output of this step will be a SAM/BAM file for each data set.
+
+Note: Treat each library as an independent data set. If you have multiple lanes of data for a single library, you can align them all together in one HISAT2 command. Similarly you can combine technical replicates into a single alignment run (examine and remove outliers).
+
 ```
 #Create directory for alignment data
 mkdir alignments
-
+cd alignments
+${HISAT2_PATH}/hisat2 -p 8 --rg-id=${TISSUE} --rg SM:${SAMPLE} --rg LB:${LIBRARY} --rg PL:ILLUMINA -x ${REF_INDEX} --dta --rna-strandness RF -1 $RNA_DATA_DIR/${LIBRARY}.fastq.gz -2 $RNA_DATA_DIR/${LIBRARY}.fastq.gz -S ./${LIBRARY}.sam
 ```
 
 

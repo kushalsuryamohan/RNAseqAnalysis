@@ -13,18 +13,19 @@ The pipeline follows the steps outlined below to analyze standard Illumina RNA-s
   c) Splicing Visualization
 
 
-1) Pre-Alignment QC
+##1) Pre-Alignment QC
 Run FASTQC on RNA-seq reads to assess quality of data
 If data are in folder $RNA_seq/data
 ```
 cd $RNA_seq/data
-module load apps/fastqc
 fastqc *.fastq.gz
 ```
+Alternatively, use http://www.bioinformatics.babraham.ac.uk/projects/fastqc/ to generate QC reports for each set of read data
 
-2)
+##2) Alignment
 
 
-3)
+
+##3)
 
 

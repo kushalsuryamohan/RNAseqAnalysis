@@ -12,5 +12,5 @@ $CUFFLINKS_BINARY -q -p $P -o /ProjectName/assemblies/sample${SAMPLE_ID} /Projec
 
 mv /ProjectName/assemblies/sample${SAMPLE_ID}/transcripts.gtf /ProjectName/assemblies/sample${SAMPLE_ID}_transcripts.gtf
 EOF
-qsub -l mf=20G,h_vmem=5G -m e -M myemail@email.com -pe local $P cufflinks_${SAMPLE_ID}.sh
+bsub cufflinks_${SAMPLE_ID}.sh
 done

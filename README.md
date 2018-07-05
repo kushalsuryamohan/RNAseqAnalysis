@@ -23,31 +23,15 @@ fastqc *.fastq.gz
 Alternatively, use http://www.bioinformatics.babraham.ac.uk/projects/fastqc/ to generate QC reports for each set of read data
 
 ## 2) Alignment
-hisat2 [options]* -x <ht2-idx> {-1 <m1> -2 <m2> | -U <r> | --sra-acc <SRA accession number>} [-S <sam>]
-
-where,
-*'-p 8' tells HISAT2 to use eight CPUs for bowtie alignments.
-*'--rna-strandness RF' specifies strandness of RNAseq library. We will specify RF since the TruSeq strand-specific library was used to make these libraries. See here for options.
-* '--rg-id $ID' specifies a read group ID that is a unique identifier.
-* '--rg SM:$SAMPLE_NAME' specifies a read group sample name. This together with rg-id will allow you to determine which reads came from which sample in the merged bam later on.
-* '--rg LB:$LIBRARY_NAME' specifies a read group library name. This together with rg-id will allow you to determine which reads came from which library in the merged bam later on.
-* '--rg PL:ILLUMINA' specifies a read group sequencing platform.
-* '--rg PU:$PLATFORM_UNIT' specifies a read group sequencing platform unit. Typically this consists of FLOWCELL-BARCODE.LANE
-* '--dta' Reports alignments tailored for transcript assemblers.
-* '-x /path/to/hisat2/index' The HISAT2 index filename prefix (minus the trailing .X.ht2) built earlier including splice sites and exons.
-* '-1 /path/to/read1.fastq.gz' The read 1 FASTQ file, optionally gzip(.gz) or bzip2(.bz2) compressed.
-* '-2 /path/to/read2.fastq.gz' The read 2 FASTQ file, optionally gzip(.gz) or bzip2(.bz2) compressed.
-* '-S /path/to/output.sam' The output SAM format text file of alignments.
-
-The output of this step will be a SAM/BAM file for each data set.
-
-Note: Treat each library as an independent data set. If you have multiple lanes of data for a single library, you can align them all together in one HISAT2 command. Similarly you can combine technical replicates into a single alignment run (examine and remove outliers).
 
 ```
 #Create directory for alignment data
 mkdir alignments
 cd alignments
-${HISAT2_PATH}/hisat2 -p 8 --rg-id=${TISSUE} --rg SM:${SAMPLE} --rg LB:${LIBRARY} --rg PL:ILLUMINA -x ${REF_INDEX} --dta --rna-strandness RF -1 $RNA_DATA_DIR/${LIBRARY}.fastq.gz -2 $RNA_DATA_DIR/${LIBRARY}.fastq.gz -S ./${LIBRARY}.sam
+for f in `cat ${files}`; do STAR --genomeDir ${GENOMEDIR} \
+--readFilesIn fastq/$f\_R1.fastq fastq/$f\_R2.fastq \
+--runThreadN 24 --outFileNamePrefix aligned/$f.; done
+
 ```
 
 

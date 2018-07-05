@@ -30,7 +30,7 @@ mkdir alignments
 cd alignments
 for f in `cat ${files}`; do STAR --genomeDir ${GENOMEDIR} \
 --readFilesIn fastq/$f\_R1.fastq fastq/$f\_R2.fastq \
---runThreadN 24 --outFileNamePrefix aligned/$f.; done
+--runThreadN 24 --outSAMtype BAM SortedByCoordinate --outFileNamePrefix aligned/$f.; done
 
 ```
 

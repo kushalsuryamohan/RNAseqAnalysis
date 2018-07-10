@@ -104,7 +104,33 @@ do
   filename=(${tmp//./ })
   bsub -e build_index.err -o build_index.out -J BUILD_INDEX -R "rusage[mem=128]" "${STAR} --genomeDir ./  --runThreadN 48 --readFilesIn ${path}/*_R1.fastq.gz ${path}/*_R2.fastq.gz --outFileNamePrefix ${filename[0]}"
 
-mv /ProjectName/assemblies/sample${SAMPLE_ID}/transcripts.gtf /ProjectName/assemblies/sample${SAMPLE_ID}_transcripts.gtf
-EOF
-bsub cufflinks_${SAMPLE_ID}.sh
+
 done
+
+#2. Create index for each alignment BAM file and run Cufflinks for each alignment file
+WORKDIR=$('pwd') #path to directory containing BAM files for Cufflinks transcript reconstruction
+cd ${WORKDIR}
+ls *.bam > bamfilelist.txt 
+for f in `cat bamfilelist.txt`; 
+do 
+	echo 'current file is' ${f}
+	#bsub -J INDEX "samtools index ${f}"
+	#echo ${f}'.cufflinks.err'
+	#echo ${f}'.CUFFLINKS'
+	bsub -e ${f}'.cufflinks.err' -o ${f}'.cufflinks.out' -J ${f}'.CUFFLINKS' -q 'long' "cufflinks --no-update-check --overlap-radius 1 --library-type fr-firststrand -o ./ ${f}"
+	bsub -w "done(${f}.CUFFLINKS)" "mv transcripts.gtf ${f}.transcripts.gtf"
+done
+
+
+#3. Merge transcript models for each sample into a single transcript GTF file
+# First, create a file that lists the names of the files containing the separately reconstructed transcripts, which can be done like so, 
+# writing each of the four Cufflinks transcript GTF files to a newly created ‘assemblies.txt’ file.
+ls *.gtf > GTFfilelist.txt
+for f in `cat GTFfilelist.txt`;
+do
+	echo 'current GTF file is' ${f}
+	echo ${f} >> MergedTranscriptAssemblies.txt
+done
+
+#4. Run Cuffmerge
+bsub -e cuffmerge.err -o cuffmerge.out -J CUFFMERGE "cuffmerge -s MergedTranscriptAssemblies.txt" #The merged set of transcripts should now exist as file 'merged_asm/merged.gtf'
